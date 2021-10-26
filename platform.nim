@@ -11,26 +11,3 @@ proc detect() =
 detect()
 
 echo repr os("other").info
-# import macros
-# dumpAstGen:
-#   none(proc(a, b: string): bool {.closure.})
-
-# nnkBracketExpr.newTree(
-#   newIdentNode("Option"),
-#   nnkProcTy.newTree(
-#     nnkFormalParams.newTree(
-#       newEmptyNode()
-#     ),
-#     newEmptyNode()
-#   )
-# )
-
-# nnkCall.newTree(
-#   newIdentNode("none"),
-#   nnkProcTy.newTree(
-#     nnkFormalParams.newTree(
-#       newEmptyNode()
-#     ),
-#     newEmptyNode()
-#   )
-# )
