@@ -170,10 +170,11 @@ macro genCPU* =
 
 inclOS unknown, unknown
 inclOS standalone, unknown
-inclOS linux, standalone, name="Linux"
+inclOS posix, standalone, "POSIX"
+inclOS linux, posix, "Linux"
 inclOS ubuntu, linux, "Ubuntu"
 inclOS android, linux, "Android"
-inclOS bsd, standalone, name="BSD"
+inclOS bsd, posix, "BSD"
 inclOS darwin, bsd, "Darwin"
 
 # system_profiler
@@ -240,6 +241,8 @@ inclOS windows7, windows, "Windows 7"
 
 inclCPU unknown, "Unknown"
 inclCPU i386, "i386", 32, littleEndian, 64, 32
+inclCPU x86_64, "x86_64", 64, littleEndian, 64, 64
+inclCPU amd64, "amd64", 64, littleEndian, 64, 64
 inclCPU m68k, "m68k", 32, bigEndian, 64, 32
 inclCPU alpha, "alpha", 64, littleEndian, 64, 64
 inclCPU powerpc, "powerpc", 32, bigEndian, 64, 32
@@ -248,7 +251,6 @@ inclCPU powerpc64el, "powerpc64el", 64, littleEndian, 64,64
 inclCPU sparc, "sparc", 32, bigEndian, 64, 32
 inclCPU hppa, "hppa", 32, bigEndian, 64, 32
 inclCPU ia64, "ia64", 64, littleEndian, 64, 64
-inclCPU amd64, "amd64", 64, littleEndian, 64, 64
 inclCPU mips, "mips", 32, bigEndian, 64, 32
 inclCPU mipsel, "mipsel", 32, littleEndian, 64, 32
 inclCPU arm, "arm", 32, littleEndian, 64, 32
