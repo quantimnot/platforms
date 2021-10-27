@@ -32,6 +32,7 @@ proc inclOSInner(ident, family, name,
   osInfoMacroCache[$ident] = quote do:
     (func(): `OSInfo` =
       result = `familyInfo`
+      result.family = OS.`family`
       if `name`.len != 0:
         result.name = `name`
       if `detectVerCmd`.len != 0:
