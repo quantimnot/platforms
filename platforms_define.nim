@@ -154,9 +154,11 @@ macro genOS* =
         exeExt*: string
         extSep*: string
         props*: set[OSProp]
+  echo $osInfoMacroCache.len
   proc infos: NimNode =
     result = nnkBracket.newTree
-    for (_, info) in osInfoMacroCache.pairs:
+    for os in osMacroCache:
+      let info = osInfoMacroCache[$os]
       result.add quote do: `info`
   result.add newConstStmt(ident"osInfos", infos())
 

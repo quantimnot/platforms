@@ -58,7 +58,7 @@ func nimOSToOS*(): OS {.compileTime.} =
   elif defined(js): OS.js
   elif defined(standalone): OS.standalone
   elif defined(nintendoswitch): OS.nintendoswitch
-  else: OS.none
+  else: OS.unknown
 
 const platform* =
   Platform(
@@ -78,12 +78,11 @@ func info*(os: OS): OSInfo =
 proc detectVer*(os: OS): string =
   let info = os.info
   if info.detectVerProc.isSome:
-    echo "has ver proc"
+    # TODO: call detection proc
+    discard
   elif info.detectVerCmd.len > 0:
-    echo "has ver cmd"
-  # else: # check family inheritance
-  #   while info.family != OS.unknown:
-  #     return detectVer info.family
+    # TODO: call detection cmd
+    discard
 
 proc os*(): OS =
   for os in OS:
@@ -93,6 +92,5 @@ proc os*(): OS =
   OS.unknown
 
 proc cpu*(): CPU =
-  # for cpu in CPU:
-  #   debugecho cpu
+  # TODO: implement CPU detection
   CPU.unknown

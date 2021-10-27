@@ -1,5 +1,5 @@
 import "."/platforms_define
-inclOS other, windows
+inclOS other, windows, "Some other Windows"
 import "."/platforms_generate
 
 proc detect() =
@@ -10,4 +10,9 @@ proc detect() =
 
 detect()
 
-echo repr os("other").info
+echo other.info.name
+echo windows.info.name
+echo windows11.info.name
+echo windows10.info.name
+echo windows8.info.name
+echo windows7.info.name
