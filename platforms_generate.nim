@@ -1,5 +1,4 @@
-import platforms_define
-import strutils, options
+import platforms_define, strutils, options, osproc
 
 genCPU
 genOS
@@ -78,11 +77,12 @@ func info*(os: OS): OSInfo =
 proc detectVer*(os: OS): string =
   let info = os.info
   if info.detectVerProc.isSome:
-    # TODO: call detection proc
-    discard
+    return info.detectVerProc.get()()
   elif info.detectVerCmd.len > 0:
-    # TODO: call detection cmd
-    discard
+    var res = info.detectVerCmd.execCmdEx
+    stripLineEnd(res[0])
+    if res.exitCode == 0:
+      return res.output
 
 proc os*(): OS =
   for os in OS:

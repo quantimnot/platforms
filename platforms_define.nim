@@ -176,7 +176,31 @@ inclOS ubuntu, linux, "Ubuntu"
 inclOS android, linux, "Android"
 inclOS bsd, standalone, name="BSD"
 inclOS darwin, bsd, "Darwin"
-inclOS macos, darwin, "macOS"
+
+# system_profiler
+inclOS(macos,
+  family = darwin,
+  name = "macOS",
+  detectVerCmd = "sw_vers -productVersion",
+  # detectVerProc = proc(): string {.closure.},
+  # verCmpCmd = "",
+  # verCmpProc = proc(): bool {.closure.},
+  # verMin = "",
+  # verMax = "",
+  parDir = "..",
+  dllFrmt = "lib{{name}}.dylib",
+  altDirSep = "",
+  objExt = "o",
+  newLine = "",
+  pathSep = ":",
+  dirSep = "/",
+  cmdInterpreter = "sh",
+  cmdExt = "sh",
+  curDir = ".",
+  exeExt = "",
+  extSep = "",
+  props = {}
+)
 inclOS ios, macos, "iOS"
 
 # https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
