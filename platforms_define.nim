@@ -154,7 +154,6 @@ macro genOS* =
         exeExt*: string
         extSep*: string
         props*: set[OSProp]
-  echo $osInfoMacroCache.len
   proc infos: NimNode =
     result = nnkBracket.newTree
     for os in osMacroCache:
