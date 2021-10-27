@@ -74,6 +74,11 @@ func cpu*(cpu: string): CPU =
 func info*(os: OS): OSInfo =
   osInfos[os.ord]
 
+func parents*(os: OS): set[OS] =
+  if not (os.info.family in {OS.unknown, OS.standalone}):
+    result.incl os.info.family
+    result.incl os.info.family.parents
+
 proc detectVer*(os: OS): string =
   let info = os.info
   if info.detectVerProc.isSome:

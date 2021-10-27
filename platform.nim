@@ -10,6 +10,8 @@ proc detect() =
 
 detect()
 
+echo other.parents
+
 echo other.info.name
 echo windows.info.name
 echo windows11.info.name
