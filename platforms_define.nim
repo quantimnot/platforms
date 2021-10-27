@@ -242,7 +242,6 @@ inclOS windows7, windows, "Windows 7"
 
 inclCPU unknown, "Unknown"
 inclCPU i386, "i386", 32, littleEndian, 64, 32
-inclCPU x86_64, "x86_64", 64, littleEndian, 64, 64
 inclCPU amd64, "amd64", 64, littleEndian, 64, 64
 inclCPU m68k, "m68k", 32, bigEndian, 64, 32
 inclCPU alpha, "alpha", 64, littleEndian, 64, 64
