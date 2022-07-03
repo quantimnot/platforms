@@ -1,4 +1,4 @@
-import platforms_define, strutils, options, osproc
+import platforms_define, strutils, options, osproc, os
 
 genCPU
 genOS
@@ -59,17 +59,23 @@ func nimOSToOS*(): OS {.compileTime.} =
   elif defined(nintendoswitch): OS.nintendoswitch
   else: OS.unknown
 
-const platform* =
+const hostPlatform* =
   Platform(
     os: nimOSToOS(),
     cpu: nimCpuToCPU(),
   )
+
+func `$`*(platform: Platform): string =
+  $platform.os & '_' & $platform.cpu
 
 func os*(os: string): OS =
   parseEnum[OS](os)
 
 func cpu*(cpu: string): CPU =
   parseEnum[CPU](cpu)
+
+func platform*(os, cpu: string): Platform =
+  Platform(os: os(os), cpu: cpu(cpu))
 
 func info*(os: OS): OSInfo =
   osInfos[os.ord]
@@ -88,6 +94,13 @@ proc detectVer*(os: OS): string =
     stripLineEnd(res[0])
     if res.exitCode == 0:
       return res.output
+
+proc cmpVer*(os: OS, a, b: string): bool =
+  let info = os.info
+  if info.cmpVerProc.isSome:
+    return info.cmpVerProc.get()(a, b)
+  elif info.cmpVerCmd.len > 0:
+    return execShellCmd(info.cmpVerCmd & " '" & a & "' " & b & '\'') == 0
 
 proc os*(): OS =
   for os in OS:

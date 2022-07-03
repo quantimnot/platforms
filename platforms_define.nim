@@ -1,5 +1,6 @@
 import macros, macrocache
 import sequtils, options
+import semver
 
 const osMacroCache = CacheSeq"osMacroCache"
 const osInfoMacroCache = CacheTable"osInfoMacroCache"
@@ -18,7 +19,7 @@ type
     LacksStaticCRT ## lacks static linkage against system c runtime
 
 proc inclOSInner(ident, family, name,
-    detectVerCmd, detectVerProc, verCmpCmd, verCmpProc,
+    detectVerCmd, detectVerProc, cmpVerCmd, cmpVerProc,
     verMin, verMax, parDir, dllFrmt, altDirSep,
     objExt, newLine, pathSep, dirSep, cmdInterpreter, cmdExt,
     curDir, exeExt, extSep, props: NimNode) {.compileTime.} =
@@ -39,10 +40,10 @@ proc inclOSInner(ident, family, name,
         result.detectVerCmd = `detectVerCmd`
       if `detectVerProc`.isSome:
         result.detectVerProc = `detectVerProc`
-      if `verCmpCmd`.len != 0:
-        result.verCmpCmd = `verCmpCmd`
-      if `verCmpProc`.isSome:
-        result.verCmpProc = `verCmpProc`
+      if `cmpVerCmd`.len != 0:
+        result.cmpVerCmd = `cmpVerCmd`
+      if `cmpVerProc`.isSome:
+        result.cmpVerProc = `cmpVerProc`
       if `verMin`.len != 0:
         result.verMin = `verMin`
       if `verMax`.len != 0:
@@ -76,17 +77,16 @@ proc inclOSInner(ident, family, name,
     )()
 
 macro inclOS*(ident: untyped, family: untyped, name = "",
-    detectVerCmd = "", detectVerProc: untyped, verCmpCmd = "", verCmpProc: untyped,
+    detectVerCmd = "", detectVerProc: untyped, cmpVerCmd = "", cmpVerProc: untyped,
     verMin = "", verMax = "", parDir = "", dllFrmt = "", altDirSep = "",
     objExt = "", newLine = "", pathSep = "", dirSep = "", cmdInterpreter = "", cmdExt = "",
     curDir = "", exeExt = "", extSep = "", props: set[OSProp] = {}) =
-  osMacroCache.add ident
-  inclOSInner ident, family, name, detectVerCmd, detectVerProc, verCmpCmd, verCmpProc,
+  inclOSInner ident, family, name, detectVerCmd, detectVerProc, cmpVerCmd, cmpVerProc,
       verMin, verMax, parDir, dllFrmt, altDirSep, objExt, newLine, pathSep, dirSep, cmdInterpreter, cmdExt, curDir, exeExt,
       extSep, props
 
 macro inclOS*(ident: untyped, family: untyped, name = "",
-    detectVerCmd = "", verCmpCmd = "",
+    detectVerCmd = "", cmpVerCmd = "",
     verMin = "", verMax = "", parDir = "", dllFrmt = "", altDirSep = "",
     objExt = "", newLine = "", pathSep = "", dirSep = "", cmdInterpreter = "", cmdExt = "",
     curDir = "", exeExt = "", extSep = "", props: set[OSProp] = {}) =
@@ -100,12 +100,12 @@ macro inclOS*(ident: untyped, family: untyped, name = "",
             newIdentNode("string")
           ),
           nnkPragma.newTree(
-            newIdentNode("closure")
+            newIdentNode("nimcall")
           )
         )
       )
     )
-  var verCmpProcNoOp =
+  var cmpVerProcNoOp =
     nnkCall.newTree(
       newIdentNode("none"),
       nnkProcTy.newTree(
@@ -119,11 +119,11 @@ macro inclOS*(ident: untyped, family: untyped, name = "",
           )
         ),
         nnkPragma.newTree(
-          newIdentNode("closure")
+          newIdentNode("nimcall")
         )
       )
     )
-  inclOSInner ident, family, name, detectVerCmd, detectVerProcNoOp, verCmpCmd, verCmpProcNoOp,
+  inclOSInner ident, family, name, detectVerCmd, detectVerProcNoOp, cmpVerCmd, cmpVerProcNoOp,
       verMin, verMax, parDir, dllFrmt, altDirSep, objExt, newLine, pathSep, dirSep, cmdInterpreter, cmdExt, curDir, exeExt,
       extSep, props
 
@@ -137,9 +137,9 @@ macro genOS* =
         family*: OS
         name*: string
         detectVerCmd*: string
-        detectVerProc*: Option[proc(): string {.closure.}]
-        verCmpCmd*: string
-        verCmpProc*: Option[proc(a,b: string): bool {.closure.}]
+        detectVerProc*: Option[proc(): string {.nimcall.}]
+        cmpVerCmd*: string
+        cmpVerProc*: Option[proc(a,b: string): bool {.nimcall.}]
         verMin*: string
         verMax*: string
         parDir*: string
@@ -169,6 +169,9 @@ macro inclCPU*(ident, name, intSize, endian, floatSize, bit) =
 macro genCPU* =
   return newEnum(ident"CPU", cpuMacroCache.items.toSeq, true, true)
 
+proc semverLessThan*(a, b: string): bool =
+  a.semver < b.semver
+
 inclOS unknown, unknown
 inclOS standalone, unknown
 inclOS posix, standalone, "POSIX"
@@ -178,15 +181,14 @@ inclOS android, linux, "Android"
 inclOS bsd, posix, "BSD"
 inclOS darwin, bsd, "Darwin"
 
-# system_profiler
 inclOS(macos,
   family = darwin,
   name = "macOS",
   detectVerCmd = "sw_vers -productVersion",
-  # detectVerProc = proc(): string {.closure.},
-  # verCmpCmd = "",
-  # verCmpProc = proc(): bool {.closure.},
-  # verMin = "",
+  detectVerProc = none proc(): string {.nimcall.},
+  # cmpVerCmd = "",
+  cmpVerProc = some semverLessThan,
+  verMin = "10.12",
   # verMax = "",
   parDir = "..",
   dllFrmt = "lib{{name}}.dylib",
@@ -211,13 +213,14 @@ inclOS ios, macos, "iOS"
 # - wmic os get buildnumber,caption,CSDVer /format:csv
 # - cpu: wmic os get oscpuitecture
 # - cpu: echo %PROCESSOR_ARCHITECTURE%
+# TODO: checkout https://github.com/rockcavera/winversion
 inclOS(windows,
   family = standalone,
   name = "Windows",
   detectVerCmd = "hello",
   # detectVerProc = proc(): string {.closure.},
-  # verCmpCmd = "",
-  # verCmpProc = proc(): bool {.closure.},
+  # cmpVerCmd = "",
+  # cmpVerProc = proc(): bool {.closure.},
   # verMin = "",
   # verMax = "",
   parDir = "",
