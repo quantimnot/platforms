@@ -1,20 +1,12 @@
-import "."/platforms_define
-inclOS other, windows, "Some other Windows"
-import "."/platforms_generate
+import platforms
 
 proc detect() =
-  echo "Compiletime OS: " & system.hostOS
-  echo "Compiletime CPU: " & system.hostCPU
+  echo "Nim Compiletime OS: " & system.hostOS
+  echo "Nim Compiletime CPU: " & system.hostCPU
   echo "Runtime OS: " & $os()
+  echo "Runtime OS version: " & $os().detectVer()
+  doAssert os().cmpVer(os().detectVer(), "10.13.4")
   echo "Runtime CPU: " & $cpu()
+  # echo $platforms_generate.platform
 
 detect()
-
-echo other.parents
-
-echo other.info.name
-echo windows.info.name
-echo windows11.info.name
-echo windows10.info.name
-echo windows8.info.name
-echo windows7.info.name
