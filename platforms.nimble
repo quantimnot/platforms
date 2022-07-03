@@ -5,3 +5,6 @@ license       = "MIT"
 srcDir        = "."
 installExt    = @["nim"]
 bin           = @["platform"]
+
+requires "semver"
+requires "test"
